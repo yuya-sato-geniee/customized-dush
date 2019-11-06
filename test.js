@@ -17,9 +17,7 @@ test('should return an instance with methods and `._allEvents` object', function
   done
 ) {
   test.strictEqual(typeof app._allEvents, 'object')
-  test.strictEqual(typeof app.use, 'function')
-  test.strictEqual(typeof app.on, 'function')
-  test.strictEqual(typeof app.off, 'function')
+  test.strictEqual(typeof app._calledEvents, 'object')
   test.strictEqual(typeof app.once, 'function')
   test.strictEqual(typeof app.emit, 'function')
   done()
@@ -30,24 +28,40 @@ test('should instace has ._allEvents object that contains all handlers', functio
 ) {
   var fn = function () {}
 
-  app.on('aaa', fn)
-  app.on('aaa', fn)
-  app.on('bbb', fn)
-  app.on('ccc', fn)
-  app.on('ccc', fn)
-  app.on('ccc', fn)
+  app.once('aaa', fn)
+  app.once('aaa', fn)
+  app.once('bbb', fn)
+  app.once('ccc', fn)
+  app.once('ccc', fn)
+  app.once('ccc', fn)
 
   test.deepStrictEqual(Object.keys(app._allEvents), ['aaa', 'bbb', 'ccc'])
   test.strictEqual(app._allEvents.aaa.length, 2)
   test.strictEqual(app._allEvents.bbb.length, 1)
   test.strictEqual(app._allEvents.ccc.length, 3)
-  app.emit('zzz')
+  done()
+})
+
+test('should instace has ._calledEvents object that contains latest called events', function (
+  done
+) {
+  app.emit('aaa', 1)
+  app.emit('aaa', 2, 3)
+  app.emit('bbb', 3)
+  app.emit('ccc', 4)
+  app.emit('ccc', 5)
+  app.emit('ccc', 6, 7, 8)
+
+  test.deepStrictEqual(Object.keys(app._calledEvents), ['aaa', 'bbb', 'ccc'])
+  test.strictEqual(app._allEvents.aaa.length, 2)
+  test.strictEqual(app._allEvents.bbb.length, 1)
+  test.strictEqual(app._allEvents.ccc.length, 3)
   done()
 })
 
 test('should register handlers for any type of string', function (done) {
   var app = dush()
-  app.on('constructor', function (a) {
+  app.once('constructor', function (a) {
     test.ok(a === 2)
   })
   app.emit('constructor', 2)
@@ -56,7 +70,7 @@ test('should register handlers for any type of string', function (done) {
 
 test('should .emit with multiple params (maximum 3)', function (done) {
   var emitter = dush()
-  emitter.on('foo', function (a, b) {
+  emitter.once('foo', function (a, b) {
     test.strictEqual(a, 'aaa')
     test.strictEqual(b, 'bbb')
   })
@@ -72,8 +86,8 @@ test('should .on register multiple handlers', function (done) {
     test.strictEqual(a, 123)
   }
 
-  app.on('foo', fn)
-  app.on('foo', fn)
+  app.once('foo', fn)
+  app.once('foo', fn)
   app.emit('foo', 123)
 
   test.strictEqual(called, 2)
@@ -96,36 +110,9 @@ test('should handlers added with .once be called one time only', function (
   done()
 })
 
-test('should .off("foo", fn) remove the handler', function (done) {
-  var called = 0
-  var second = 0
-  var fn = function () {
-    called++
-  }
-
-  app.on('qux', fn)
-  app.on('qux', function () {
-    second = 1
-  })
-  app.off('qux', fn)
-  app.emit('qux')
-
-  test.strictEqual(called, 0)
-  test.strictEqual(second, 1)
-  test.strictEqual(app._allEvents.qux.length, 1)
-  done()
-})
-
-test('should .off("foo") remove all "foo" handlers', function (done) {
-  app.on('zzz', function () {}).on('zzz', function () {}).off('zzz')
-
-  test.strictEqual(app._allEvents.zzz.length, 0)
-  done()
-})
-
 test('should all methods be chainable', function (done) {
   var called = 0
-  var foo = app.on('foo', function () {})
+  var foo = app.once('foo', function () {})
   test.ok(foo.once)
 
   var bar = foo.once('bar', function () {
@@ -133,17 +120,16 @@ test('should all methods be chainable', function (done) {
   })
   test.ok(bar.emit)
 
-  var qux = bar.emit('bar')
-  test.ok(qux.off)
+  bar.emit('bar')
 
-  qux.off('bar').emit('bar')
   test.strictEqual(called, 1)
+
   done()
 })
 
 test('should have wildcard event', function (done) {
   var app = dush()
-  app.on('*', function (name, nume) {
+  app.once('*', function (name, nume) {
     test.strictEqual(name, 'haha')
     test.strictEqual(nume, 444444)
   })
@@ -151,65 +137,10 @@ test('should have wildcard event', function (done) {
   done()
 })
 
-test('should return app if .use(plugin) dont', function (done) {
-  var app = dush()
-  app
-    .use(function (app) {
-      app.foo = 'bar'
-    })
-    .use(function (app) {
-      app.baz = 12345
-      return app
-    })
-    .use(function (app) {
-      app.qux = 'zzz'
-    })
-
-  test.strictEqual(app.foo, 'bar')
-  test.strictEqual(app.baz, 12345)
-  test.strictEqual(app.qux, 'zzz')
-  done()
-})
-
-test('should not allow emitting the wildcard (issue#5)', function (done) {
-  var emitter = dush()
-
-  // eslint-disable-next-line max-params
-  emitter.on('*', function (name, a, b, c) {
-    test.strictEqual(name, 'foo')
-    test.strictEqual(a, 1)
-    test.strictEqual(b, 2)
-    test.strictEqual(c, 3)
-  })
-  emitter.on('foo', function (a, b, c) {
-    test.strictEqual(a, 1)
-    test.strictEqual(b, 2)
-    test.strictEqual(c, 3)
-  })
-
-  emitter.emit('*', 4, 5, 6)
-  emitter.emit('foo', 1, 2, 3)
-  emitter.emit('*', 555)
-  done()
-})
-
-test('should not add additional arguments when emit', function (done) {
-  var app = dush()
-  app.on('foo', function () {
-    // prev versions was calling the handler
-    // with `undefined, undefined, undefined` event if
-    // `.emit` don't pass any arguments...
-    test.strictEqual(arguments.length, 1)
-    done()
-  })
-
-  app.emit('foo', 1)
-})
-
 test('should support to emit any number of arguments', function (done) {
   dush()
     // eslint-disable-next-line max-params
-    .on('zazzie', function (aa, bb, cc, dd, ee) {
+    .once('zazzie', function (aa, bb, cc, dd, ee) {
       test.strictEqual(aa, 1)
       test.strictEqual(bb, 2)
       test.strictEqual(cc, 3)
@@ -229,7 +160,7 @@ test('should be able to pass context to listener', function (done) {
 
   var ctx = { aaa: 'bbb' }
   var app = dush()
-  app.on('ctx', listener.bind(ctx))
+  app.once('ctx', listener.bind(ctx))
   app.once('ctx', listener.bind(ctx))
   app.emit('ctx', 'hello world')
 })
@@ -239,60 +170,47 @@ test('should context of listener be the listener', function (done) {
     test.strictEqual(typeof this, 'function')
     done()
   }
-  app.on('func', fnc)
+  app.once('func', fnc)
   app.emit('func')
 })
 
-test('should be able to `.off` the `.once` listeners (issue #7)', function (
-  done
-) {
-  var emitter = dush()
-  var called = 0
+// custom test
 
-  function hello () {
-    called++
-  }
-
-  emitter.once('test', hello)
-  emitter.emit('test')
-  emitter.emit('test')
-  test.strictEqual(called, 1)
-  emitter.off('test', hello)
-  emitter.emit('test')
-  test.strictEqual(called, 1)
+test('should `fireImmediately` works well on emit -> once', function (done) {
+  var count = 0
+  app.emit('aaaaa', 1, 2, 3)
+  app.once('aaaaa', function (a, b, c) {
+    count += a + b + c
+  }, true)
+  test.strictEqual(count, 6)
+  app.emit('aaaaa', 4, 5)
+  test.strictEqual(count, 6)
   done()
 })
 
-test('should `.on` work as `.once` if third argument is true', function (done) {
-  var emitter = dush()
-  var calls = 0
-  function fn () {
-    calls++
-  }
-  emitter.on('onetime', fn, true)
-  emitter.emit('onetime')
-  test.strictEqual(calls, 1)
+test('should `fireImmediately` works well on once -> emit', function (done) {
+  var count = 0
+  app.once('bbbbb', function (a, b, c) {
+    count += a + b + c
+  })
+  test.strictEqual(count, 0)
+  app.emit('bbbbb', 1, 2, 3)
+  test.strictEqual(count, 6)
+  app.emit('bbbbb', 1, 2, 3)
+  test.strictEqual(count, 6)
   done()
 })
 
-test('should `.off()` remove all listeners', function (done) {
-  var app = dush()
-  var fixture = function () {}
-  app.on('a', fixture)
-  app.once('a', fixture)
-  app.on('a', fixture)
-  app.on('b', fixture)
-  app.once('b', fixture)
-  app.on('c', fixture)
-
-  var evts = Object.keys(app._allEvents)
-  test.strictEqual(evts.length, 3)
-  test.strictEqual(app._allEvents.a.length, 3)
-  test.strictEqual(app._allEvents.b.length, 2)
-  test.strictEqual(app._allEvents.c.length, 1)
-
-  app.off()
-  var allEvents = Object.keys(app._allEvents)
-  test.strictEqual(allEvents.length, 0)
+test('multi defined `fireImmediately`', function (done) {
+  var count = 0
+  app.emit('ccccc')
+  app.emit('ccccc')
+  app.once('ccccc', function () { count += 1 }, true)
+  app.once('ccccc', function () { count += 2 }, false)
+  app.once('ccccc', function () { count += 4 }, true)
+  test.strictEqual(count, 5)
+  app.emit('ccccc')
+  app.emit('ccccc')
+  test.strictEqual(count, 7)
   done()
 })

@@ -1,14 +1,14 @@
 {
   "name": "dush",
   "version": "3.0.5",
-  "description": "Microscopic & functional event emitter in ~350 bytes, extensible through plugins",
-  "repository": "tunnckoCore/dush",
-  "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
+  "description": "customized dush",
+  "repository": "yuya-sato-geniee/dush",
+  "author": "yuya-sato-geniee",
   "precommit.silent": true,
   "jsnext:main": "dist/dush.es.js",
   "module": "dist/dush.es.js",
   "main": "dist/dush.common.js",
-  "license": "MIT",
+  "license": "none",
   "scripts": {
     "lint": "standard src/index.js test.js --fix --verbose",
     "test": "npm-run-all -s lint test:*",
