@@ -9,7 +9,7 @@ declare namespace dush {
 
   interface Emitter {
     _allEvents: Array<{ [eventName: string]: Handler[] }>;
-    once(type: string, handler: Handler): Emitter;
+    once(type: string, handler: Handler, fireImmediately?: boolean): Emitter;
     emit(type: string, ...event: any[]): Emitter;
   }
 }
