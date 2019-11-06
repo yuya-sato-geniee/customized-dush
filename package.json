@@ -8,6 +8,7 @@
   "jsnext:main": "dist/dush.es.js",
   "module": "dist/dush.es.js",
   "main": "dist/dush.common.js",
+  "typings": "index.d.ts",
   "license": "none",
   "scripts": {
     "lint": "standard src/index.js test.js --fix --verbose",
