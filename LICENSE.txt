@@ -1,0 +1,9 @@
+This project:
+customized-dush <https://github.com/yuya-sato-geniee/customized-dush>
+  Copyright (c) Yuya Sato <@yuya-sato-geniee> (https://github.com/yuya-sato-geniee)
+  Released under the MIT license.
+
+Upstream project:
+dush <https://github.com/tunnckoCore/dush>
+  Copyright (c) Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)
+  Released under the MIT license.
