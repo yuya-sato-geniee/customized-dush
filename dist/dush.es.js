@@ -1,3 +1,10 @@
+/*!
+ * dush <https://github.com/tunnckoCore/dush>
+ *
+ * Copyright (c) Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)
+ * Released under the MIT license.
+ */
+
 function index () {
   var _allEvents = Object.create(null);
   var _calledEvents = Object.create(null);
