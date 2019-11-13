@@ -1,8 +1,8 @@
 {
-  "name": "dush",
+  "name": "customized-dush",
   "version": "3.0.5",
   "description": "customized dush",
-  "repository": "yuya-sato-geniee/dush",
+  "repository": "yuya-sato-geniee/customized-dush",
   "author": "yuya-sato-geniee",
   "precommit.silent": true,
   "jsnext:main": "dist/dush.es.js",
@@ -46,36 +46,6 @@
   "files": [
     "dist/"
   ],
-  "keywords": [
-    "browser",
-    "browserify",
-    "cjs",
-    "client",
-    "commonjs",
-    "compatible",
-    "emit",
-    "emitter",
-    "event",
-    "event-emitter",
-    "events",
-    "functional",
-    "lightweight",
-    "micro",
-    "microscopic",
-    "mini",
-    "minimal",
-    "nodejs",
-    "pubsub",
-    "small",
-    "subscribe",
-    "tiny",
-    "webpack"
-  ],
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
   "standard": {
     "ignore": [
       "dist/**"
@@ -112,33 +82,6 @@
         "dual-emitter"
       ],
       "highlight": "mitt"
-    },
-    "reflinks": [
-      "always-done",
-      "async-done",
-      "base",
-      "browserify",
-      "charlike",
-      "commitizen",
-      "dezalgo",
-      "dush-methods",
-      "dush-no-chaining",
-      "dush-router",
-      "dush-tap-report",
-      "hyperscript",
-      "mitt",
-      "once",
-      "rollup",
-      "standard-version",
-      "verb",
-      "verb-generate-readme",
-      "webpack",
-      "dush-better-use",
-      "dush-options",
-      "dush-promise"
-    ],
-    "lint": {
-      "reflinks": true
     }
   }
 }
